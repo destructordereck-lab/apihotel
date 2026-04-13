@@ -109,5 +109,6 @@ $f3->route('GET /userref',
 		echo View::instance()->render('layout.htm');
 	}
 );
-
+$f3->route('POST /signup', 'Auth_Ctrl->registro');
+$f3->route('POST /login', 'Auth_Ctrl->login');
 $f3->run();
