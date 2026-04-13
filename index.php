@@ -111,4 +111,18 @@ $f3->route('GET /userref',
 );
 $f3->route('POST /signup', 'Auth_Ctrl->registro');
 $f3->route('POST /login', 'Auth_Ctrl->login');
+$f3->route('GET /_debug_db', function($f3) {
+    $db = $f3->get('DB');
+    if (!$db) {
+        echo json_encode(['db' => 'null']);
+        return;
+    }
+    try {
+        $res = $db->exec('SELECT 1 as ok');
+        echo json_encode(['db' => 'ok', 'test' => $res]);
+    } catch (Exception $e) {
+        echo json_encode(['db' => 'error', 'msg' => $e->getMessage()]);
+    }
+});
+
 $f3->run();
