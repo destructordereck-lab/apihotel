@@ -534,22 +534,6 @@ class SQL {
 	*	@param $pw string
 	*	@param $options array
 	**/
-	function __construct($dsn,$user=NULL,$pw=NULL,?array $options=NULL) {
-		$fw=\Base::instance();
-		$this->uuid=$fw->hash($this->dsn=$dsn);
-		if (preg_match('/^.+?(?:dbname|database)=(.+?)(?=;|$)/is',$dsn,$parts))
-			$this->dbname=str_replace('\\ ',' ',$parts[1]);
-		if (!$options)
-			$options=[];
-		if (isset($parts[0]) && strstr($parts[0],':',TRUE)=='mysql')
-			if (version_compare(PHP_VERSION, '8.5.0')<0)
-				$options+=[\PDO::MYSQL_ATTR_INIT_COMMAND=>'SET NAMES '.
-					strtolower(str_replace('-','',$fw->ENCODING)).';'];
-			else
-				$options+=[\PDO\Mysql::ATTR_INIT_COMMAND=>'SET NAMES '.
-					strtolower(str_replace('-','',$fw->ENCODING)).';'];
-		$this->pdo=new \PDO($dsn,$user,$pw,$options);
-		$this->engine=$this->pdo->getattribute(\PDO::ATTR_DRIVER_NAME);
-	}
+	
 
 }
