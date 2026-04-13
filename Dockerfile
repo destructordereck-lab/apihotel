@@ -8,4 +8,5 @@ WORKDIR /app
 EXPOSE 10000
 
 # Comando de arranque
-CMD ["php", "-S", "0.0.0.0:10000", "index.php"]
+CMD ["php", "-S", "0.0.0.0:10000", "-t", "/app", "index.php"]
+
