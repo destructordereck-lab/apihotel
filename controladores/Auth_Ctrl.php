@@ -8,13 +8,14 @@ class Auth_Ctrl
 
     public function __construct()
     {
-        $this->Usuario = new Usuario();
-        $this->Persona = new Persona();
-        $this->Rol = new Rol();
-        $this->Menu = new Menu();
+        $db = \Base::instance()->get('DB');
+
+        $this->Usuario = new Usuario($db);
+        $this->Persona = new Persona($db);
+        $this->Rol     = new Rol($db);
+        $this->Menu    = new Menu($db);
     }
 
-    // Función para enviar cabeceras CORS en cada respuesta
     private function setCorsHeaders()
     {
         header("Access-Control-Allow-Origin: *");
@@ -24,10 +25,17 @@ class Auth_Ctrl
 
     public function registro($f3)
     {
-        $this->setCorsHeaders(); // <-- cabeceras CORS
+        $this->setCorsHeaders();
+
+        // Aceptar JSON o form-urlencoded
+        $input = json_decode(file_get_contents('php://input'), true);
+        if ($input && is_array($input)) {
+            foreach ($input as $k => $v) $f3->set("POST.$k", $v);
+        }
 
         $response = ['estado' => 0, 'mensaje' => ''];
 
+        $this->Usuario->reset();
         $this->Usuario->load(['correo = ?', $f3->get('POST.usuario')]);
         if ($this->Usuario->dry()) {
             $this->Persona->nombres = $f3->get('POST.nombres');
@@ -57,15 +65,32 @@ class Auth_Ctrl
 
     public function login($f3)
     {
-        $this->setCorsHeaders(); // <-- cabeceras CORS
+        $this->setCorsHeaders();
+
+        // Aceptar JSON o form-urlencoded
+        $input = json_decode(file_get_contents('php://input'), true);
+        if ($input && is_array($input)) {
+            $f3->set('POST.usuario', $input['usuario'] ?? $f3->get('POST.usuario'));
+            $f3->set('POST.clave',   $input['clave'] ?? $f3->get('POST.clave'));
+        }
 
         $response = ['estado' => 0, 'mensaje' => ''];
         $usuario = $f3->get('POST.usuario');
-        $clave = md5($f3->get('POST.clave'));
-        $this->Usuario->load(['correo = ? AND clave = ?', $usuario, $clave]);
+        $clave = $f3->get('POST.clave');
+
+        if (!$usuario || !$clave) {
+            http_response_code(400);
+            echo json_encode(['estado' => 0, 'mensaje' => 'usuario y clave requeridos']);
+            return;
+        }
+
+        $claveHash = md5($clave);
+        $this->Usuario->reset();
+        $this->Usuario->load(['correo = ? AND clave = ?', $usuario, $claveHash]);
 
         if ($this->Usuario->loaded() > 0) {
             $id_per = $this->Usuario->id_persona;
+            $this->Persona->reset();
             $this->Persona->load(['id = ?', $id_per]);
 
             $persona = $this->Persona->cast();
@@ -86,16 +111,16 @@ class Auth_Ctrl
 
     public function getMenu($f3)
     {
-        $this->setCorsHeaders(); // <-- cabeceras CORS
+        $this->setCorsHeaders();
 
-        $rol = $f3->get('PARAMS.id');
+        $rol = (int)$f3->get('PARAMS.id');
 
         $query = "SELECT m.* FROM tb_accesos ac 
         LEFT JOIN tb_menu m ON ac.id_menu=m.id
         LEFT JOIN tb_roles r ON ac.id_rol=r.id
-        WHERE r.id =" . $rol;
+        WHERE r.id = ?";
 
-        $respuesta = $f3->DB->exec($query);
+        $respuesta = $f3->DB->exec($query, $rol);
 
         echo json_encode([
             'estado' => count($respuesta) > 0 ? 1 : 0,

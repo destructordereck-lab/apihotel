@@ -8,11 +8,13 @@ class Room_Ctrl
 
     public function __construct()
     {
-        $this->TipoHabitacion = new TipoHabitacion();
-        $this->Servicio = new Servicio();
-        $this->Reserva = new Reservacion();
-        $this->Habitacion = new Habitacion();
+        $db = \Base::instance()->get('DB');
+        $this->TipoHabitacion = new TipoHabitacion($db);
+        $this->Servicio       = new Servicio($db);
+        $this->Reserva        = new Reservacion($db);
+        $this->Habitacion     = new Habitacion($db);
     }
+
 
     public function getTipos($f3)
     {

@@ -1,8 +1,8 @@
 <?php
 class Servicio extends \DB\SQL\Mapper
 {
-    public function __construct()
+    public function __construct(\DB\SQL $db)
     {
-        parent::__construct(\Base::instance()->get('DB'), 'tb_servicios');
+        parent::__construct($db, 'tb_servicios');
     }
 }
