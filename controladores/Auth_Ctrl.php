@@ -14,8 +14,18 @@ class Auth_Ctrl
         $this->Menu = new Menu();
     }
 
+    // Función para enviar cabeceras CORS en cada respuesta
+    private function setCorsHeaders()
+    {
+        header("Access-Control-Allow-Origin: *");
+        header("Access-Control-Allow-Methods: GET, POST, OPTIONS, PUT, PATCH, DELETE");
+        header("Access-Control-Allow-Headers: Content-Type, Authorization, X-Requested-With");
+    }
+
     public function registro($f3)
     {
+        $this->setCorsHeaders(); // <-- cabeceras CORS
+
         $response = ['estado' => 0, 'mensaje' => ''];
 
         $this->Usuario->load(['correo = ?', $f3->get('POST.usuario')]);
@@ -39,7 +49,7 @@ class Auth_Ctrl
             $response['estado'] = 1;
             $response['mensaje'] = 'Se registró con éxito';
         } else {
-            $response['mensaje'] = 'El usuario se encunetra en uso';
+            $response['mensaje'] = 'El usuario se encuentra en uso';
         }
 
         echo json_encode($response);
@@ -47,6 +57,8 @@ class Auth_Ctrl
 
     public function login($f3)
     {
+        $this->setCorsHeaders(); // <-- cabeceras CORS
+
         $response = ['estado' => 0, 'mensaje' => ''];
         $usuario = $f3->get('POST.usuario');
         $clave = md5($f3->get('POST.clave'));
@@ -74,6 +86,8 @@ class Auth_Ctrl
 
     public function getMenu($f3)
     {
+        $this->setCorsHeaders(); // <-- cabeceras CORS
+
         $rol = $f3->get('PARAMS.id');
 
         $query = "SELECT m.* FROM tb_accesos ac 
