@@ -24,11 +24,15 @@ $f3->config('config.ini');//cargar la configuración con la base de datos
 $f3->config('routes.ini');//cargar las rutas URL
 
 //configurar la conexion con la base de Datos
-$f3->set('DB', new DB\SQL('mysql:host=' . $f3->get('database.host') . ';port=3306;dbname=' . $f3->get('database.dbname'), $f3->get('database.user'), $f3->get('database.pass')), $options = array(
-    \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION,
-    \PDO::ATTR_PERSISTENT => TRUE, 
-    \PDO::MYSQL_ATTR_COMPRESS => TRUE, 
+$f3->set('DB', new DB\SQL(
+    'mysql:host=' . $f3->get('database.host') . ';port=3306;dbname=' . $f3->get('database.dbname'),
+    $f3->get('database.user'),
+    $f3->get('database.pass'),
+    array(
+        \PDO::ATTR_ERRMODE => \PDO::ERRMODE_EXCEPTION
+    )
 ));
+
 
 $f3->route('GET /',
 	function($f3) {
