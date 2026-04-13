@@ -15,7 +15,7 @@ if ($_SERVER['REQUEST_METHOD'] == 'OPTIONS') {
 // Kickstart the framework
 $f3=require('lib/base.php');
 
-$f3->set('DEBUG',1);
+$f3->set('DEBUG',3);
 if ((float)PCRE_VERSION<8.0)
 	trigger_error('PCRE version is out of date');
 
